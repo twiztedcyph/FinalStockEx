@@ -36,11 +36,17 @@ public class OrderBook extends JFrame
     private JPanel orderPanel, traderPanel, marketPanel;
     private JScrollPane listPane;
     private DefaultTableModel model;
+    private int counter = 0;
+    public static volatile BuyerWindow buyerWindow;
+    public static volatile SellerWindow sellerWindow;
 
     public OrderBook()
     {
-
         super("Welcome to the Order Book");
+        
+        buyerWindow = new BuyerWindow();
+        sellerWindow = new SellerWindow();
+        
         rand = new Random();
         sellQueue = new ArrayList<>();
         buyQueue = new ArrayList<>();
@@ -52,8 +58,10 @@ public class OrderBook extends JFrame
         addListeners();
         setFrame();
         setVisible(true);
+        
         this.setSellers();
         this.setBuyers();
+        
         Thread theLoop = new Thread()
         {
             @Override
@@ -90,7 +98,7 @@ public class OrderBook extends JFrame
 
         String[] columns =
         {
-            "Company", "Buyer", "Seller", "Quantity", "Price"
+            "Stock", "Buyer", "Seller", "Quantity", "Price"
         };
         
         model = new DefaultTableModel();
@@ -166,8 +174,7 @@ public class OrderBook extends JFrame
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
-                new BuyerWindow().setVisible(true);
-
+                buyerWindow.setVisible(true);
             }
         });
 
@@ -176,7 +183,7 @@ public class OrderBook extends JFrame
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
-                new SellerWindow().setVisible(true);
+                sellerWindow.setVisible(true);
 
             }
         });
@@ -221,138 +228,187 @@ public class OrderBook extends JFrame
             
             for (int i = 0; i < sellQueue.size(); i++)
             {
-                for (int j = 0; j < buyQueue.size(); j++)
+                synchronized(this)
                 {
-                    if(sellQueue.get(i).getType().equals(buyQueue.get(j).getType()))
+                    for (int j = 0; j < buyQueue.size(); j++)
                     {
-                        System.out.printf("\nMatch found.\n%s\n%s\n", sellQueue.get(i).toString(), buyQueue.get(j).toString());
-                        if(sellQueue.get(i).getPrice() <= buyQueue.get(j).getPrice())
+                        if(sellQueue.get(i).getType().equals(buyQueue.get(j).getType()))
                         {
-                            String buyerName = buyQueue.get(j).getTraderName();
-                            System.out.println("Buyer: " + buyerName);
                             
-                            switch(buyerName)
+                            System.out.printf("\nMatch found.\n%s\n%s\n", sellQueue.get(i).toString(), buyQueue.get(j).toString());
+                            if(sellQueue.get(i).getPrice() <= buyQueue.get(j).getPrice())
                             {
-                                case "John":
-                                    if(sellQueue.get(i).getQuantity() <= buyQueue.get(i).getQuantity())
-                                    {
-                                        String buyer = buyQueue.get(i).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(i).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b1.addBoughtGoods(new Stock(goods
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by John");
-                                        buyQueue.get(j).setQuantity(buyQueue.get(j).getQuantity() - sellQueue.get(i).getQuantity());
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        model.addRow(sellData);
-                                        
-                                        sellQueue.remove(i);
-                                    }else
-                                    {
-                                        String buyer = buyQueue.get(i).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(i).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b1.addBoughtGoods(new Stock(sellQueue.get(i).getType()
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by John");
-                                        sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        model.addRow(sellData);
-                                        
-                                        buyQueue.remove(j);
-                                    }
-                                    break;
-                                case "Terry":
-                                    if(sellQueue.get(i).getQuantity() <= buyQueue.get(i).getQuantity())
-                                    {
-                                        String buyer = buyQueue.get(i).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(i).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b2.addBoughtGoods(new Stock(sellQueue.get(i).getType()
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by Terry");
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        model.addRow(sellData);
-                                        
-                                        sellQueue.remove(i);
-                                    }else
-                                    {
-                                        String buyer = buyQueue.get(i).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(i).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b2.addBoughtGoods(new Stock(sellQueue.get(i).getType()
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by Terry");
-                                        sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        model.addRow(sellData);
-                                        
-                                        buyQueue.remove(j);
-                                    }
-                                    break;
-                                case "Pam":
-                                    if(sellQueue.get(i).getQuantity() <= buyQueue.get(j).getQuantity())
-                                    {
-                                        String buyer = buyQueue.get(i).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(i).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b3.addBoughtGoods(new Stock(sellQueue.get(i).getType()
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by Pam");
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        
-                                        model.addRow(sellData);
-                                        
-                                        sellQueue.remove(i);
-                                    }else
-                                    {
-                                        String buyer = buyQueue.get(j).getTraderName();
-                                        String seller = sellQueue.get(i).getTraderName();
-                                        String goods = sellQueue.get(i).getType();
-                                        String quant = String.valueOf(buyQueue.get(j).getQuantity());
-                                        String price = String.valueOf(sellQueue.get(i).getPrice());
-                                        b3.addBoughtGoods(new Stock(sellQueue.get(i).getType()
-                                                , sellQueue.get(i).getQuantity()
-                                                , sellQueue.get(i).getPrice()));
-                                        System.err.println(sellQueue.get(i) + " bought by Pam");
-                                        sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
-                                        String[] sellData = {goods, buyer, seller, quant, price};
-                                        model.addRow(sellData);
-                                        
-                                        buyQueue.remove(j);
-                                    }
-                                    break;
+                                String buyerName = buyQueue.get(j).getTraderName();
+                                System.out.println("Buyer: " + buyerName);
+
+                                switch(buyerName)
+                                {
+                                    case "John":
+                                        if(sellQueue.get(i).getQuantity() < buyQueue.get(j).getQuantity())
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b1.addBoughtGoods(new Stock(goods
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            buyQueue.get(j).setQuantity(buyQueue.get(j).getQuantity() - sellQueue.get(i).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+
+                                            sellQueue.get(i).setDeleteMe(true);
+                                        }else if(sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b1.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }else
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b1.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            sellQueue.get(i).setDeleteMe(true);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }
+                                        break;
+                                    case "Terry":
+                                        if(sellQueue.get(i).getQuantity() < buyQueue.get(j).getQuantity())
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b2.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by Terry");
+                                            buyQueue.get(j).setQuantity(buyQueue.get(j).getQuantity() - sellQueue.get(i).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            sellQueue.get(i).setDeleteMe(true);
+                                        }else if(sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b2.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by Terry");
+                                            sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }else
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b2.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by Terry");
+                                            sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            sellQueue.get(i).setDeleteMe(true);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }
+                                        break;
+                                    case "Pam":
+                                        if(sellQueue.get(i).getQuantity() <= buyQueue.get(j).getQuantity())
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b3.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            buyQueue.get(j).setQuantity(buyQueue.get(j).getQuantity() - sellQueue.get(i).getQuantity());
+                                            System.err.println(sellQueue.get(i) + " bought by Pam");
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+
+                                            model.addRow(sellData);
+
+                                            sellQueue.get(i).setDeleteMe(true);
+                                        }else
+                                        {
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(sellQueue.get(i).getPrice());
+                                            b3.addBoughtGoods(new Stock(sellQueue.get(i).getType()
+                                                    , sellQueue.get(i).getQuantity()
+                                                    , sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by Pam");
+                                            sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
+                                            String[] sellData = {goods, buyer, seller, quant, price};
+                                            model.addRow(sellData);
+                                            sellQueue.get(i).setDeleteMe(true);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }
+                                        break;
+                                }
                             }
                         }
                     }
                 }
             }
-            
+            for (int i = 0; i < buyQueue.size(); i++)
+            {
+                if(buyQueue.get(i).isDeleteMe() || buyQueue.get(i).getQuantity() <= 0)
+                {
+                    buyQueue.remove(i);
+                }
+            }
+            for (int i = 0; i < sellQueue.size(); i++)
+            {
+                if(sellQueue.get(i).isDeleteMe() || sellQueue.get(i).getQuantity() <= 0)
+                {
+                    sellQueue.remove(i);
+                }
+            }
             for (int i = 0; i < sellQueue.size(); i++)
             {
                 sellQueue.get(i).decTTL();
                 if(sellQueue.get(i).getTTL() <= 0)
                 {
                     int redAmount = rand.nextInt(20);
-                    if(sellQueue.get(i).getPrice() > redAmount)
+                    if(sellQueue.get(i).getPrice() > 20)
                     {
                         sellQueue.get(i).setPrice(sellQueue.get(i).getPrice() - 20);
                         sellQueue.get(i).resetTTL();
+                        String[] data = {sellQueue.get(i).getType(), sellQueue.get(i).getTraderName(), String.valueOf(sellQueue.get(i).getQuantity()), String.valueOf(sellQueue.get(i).getPrice())};
+                        sellerWindow.addRow(data);
                         System.out.println(sellQueue.get(i).getTraderName() + " lowers the price.");
                     }
                 }
@@ -365,6 +421,8 @@ public class OrderBook extends JFrame
                 {
                     buyQueue.get(i).setPrice(buyQueue.get(i).getPrice() + 20);
                     buyQueue.get(i).resetTTL();
+                    String[] data = {buyQueue.get(i).getType(), buyQueue.get(i).getTraderName(), String.valueOf(buyQueue.get(i).getQuantity()), String.valueOf(buyQueue.get(i).getPrice())};
+                    buyerWindow.addRow(data);
                     System.out.println(buyQueue.get(i).getTraderName() + " increases the bid.");
                 }
             }

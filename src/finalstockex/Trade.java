@@ -15,6 +15,7 @@ public class Trade
     private String type, traderName, action;
     private int quantity, tradeTTL;
     private double price;
+    private boolean deleteMe;
     
     public Trade(String action, String type, String traderName, int quantity, double price)
     {
@@ -25,15 +26,25 @@ public class Trade
         this.quantity = quantity;
         this.price = price;
         this.tradeTTL = rand.nextInt(8) + 1;
+        this.deleteMe = false;
     }
     
     @Override
     public String toString()
     {
-        return String.format("%s %s %s %d %f", action, type, traderName, quantity, price);
+        return String.format("\n%s %s %s %d %f\n", action, type, traderName, quantity, price);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Get and set stuff">
+    public void setDeleteMe(boolean deleteMe)
+    {
+        this.deleteMe = deleteMe;
+    }
+    
+    public boolean isDeleteMe()
+    {
+        return deleteMe;
+    }
     
     public String getAction()
     {

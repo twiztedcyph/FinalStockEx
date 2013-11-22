@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 
 public class BuyerWindow extends JFrame
 {
@@ -25,6 +26,7 @@ public class BuyerWindow extends JFrame
     private JTable table;
     private JScrollPane tablePane;
     private JPanel north, center;
+    private DefaultTableModel model;
 
     public BuyerWindow()
     {
@@ -45,7 +47,7 @@ public class BuyerWindow extends JFrame
         setMaximumSize(new Dimension(800, 800));
         setPreferredSize(new Dimension(500, 500));
         setResizable(false);
-
+        setLocation(165, 270);
         pack();
     }
 
@@ -62,21 +64,20 @@ public class BuyerWindow extends JFrame
 
         String[] columns =
         {
-            "Name", "Company", "Quantity", "Price"
+            "Name", "Stock", "Quantity", "Price"
         };
-        String[][] data =
-        {
-            {
-                "Dragos Popescu", "Vodafone", "11", "200"
-            },
-        };
-        table = new JTable(data, columns)
+        model = new DefaultTableModel();
+        table = new JTable(model)
         {
             public boolean isCellEditable(int rows, int column)
             {
                 return false;
             }
         };
+        for (int i = 0; i < columns.length; i++)
+        {
+            model.addColumn(columns[i]);
+        }
         table.setPreferredScrollableViewportSize(new Dimension(450, 630));
         table.setFillsViewportHeight(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -95,5 +96,11 @@ public class BuyerWindow extends JFrame
         add(north, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
 
+    }
+    
+    public synchronized void addRow(String[] data)
+    {
+        model.addRow(data);
+        this.repaint();
     }
 }

@@ -35,7 +35,9 @@ public class Seller extends Thread
             if(myStock.size() > 0)
             {
                 OrderBook.sellQueue.add(new Trade("SELL", myStock.get(i).getName(), this.name, myStock.get(i).getQuantity(), myStock.get(i).getPrice()));
-                System.out.printf("selling %s at %.2f.", myStock.get(i).getName(), myStock.get(i).getPrice());
+                String[] sellData = {myStock.get(i).getName(), this.name, String.valueOf(myStock.get(i).getQuantity()), String.valueOf(myStock.get(i).getPrice())};
+                OrderBook.sellerWindow.addRow(sellData);
+                System.out.printf("\nselling %s at %.2f.\n", myStock.get(i).getName(), myStock.get(i).getPrice());
                 myStock.remove(i);
             }
         }
