@@ -38,6 +38,7 @@ public class OrderBook extends JFrame
     private DefaultTableModel model;
     public static volatile BuyerWindow buyerWindow;
     public static volatile SellerWindow sellerWindow;
+    private UserInput userInput;
     private int count = 0;
 
     public OrderBook()
@@ -46,7 +47,7 @@ public class OrderBook extends JFrame
 
         buyerWindow = new BuyerWindow();
         sellerWindow = new SellerWindow();
-
+        userInput = new UserInput();
         rand = new Random();
         sellQueue = new ArrayList<>();
         buyQueue = new ArrayList<>();
@@ -84,6 +85,7 @@ public class OrderBook extends JFrame
         setResizable(false);
         setLocationRelativeTo(null);
         pack();
+        userInput.setVisible(true);
     }
 
     private void createLabel()
@@ -284,6 +286,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             sellQueue.get(i).setDeleteMe(true);
                                         } else if (sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
@@ -315,6 +319,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             buyQueue.get(j).setDeleteMe(true);
                                         } else
@@ -345,6 +351,111 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
+                                            }
+                                            sellQueue.get(i).setDeleteMe(true);
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        }
+                                        break;
+                                        case "USER":
+                                        if (sellQueue.get(i).getQuantity() < buyQueue.get(j).getQuantity())
+                                        {
+                                            count = 0;
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(String.format("%.2f", sellQueue.get(i).getPrice()));
+                                            //b1.addBoughtGoods(new Stock(goods, sellQueue.get(i).getQuantity(), sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            buyQueue.get(j).setQuantity(buyQueue.get(j).getQuantity() - sellQueue.get(i).getQuantity());
+                                            String[] sellData =
+                                            {
+                                                goods, buyer, seller, quant, price
+                                            };
+                                            model.addRow(sellData);
+                                            double amount = b1.getMyCash() - sellQueue.get(i).getPrice();
+                                            b1.setMyCash(amount);
+
+                                            switch (sellQueue.get(i).getTraderName())
+                                            {
+                                                case "Ian":
+                                                    s0.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Tom":
+                                                    s1.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Kim":
+                                                    s2.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
+                                            }
+                                            sellQueue.get(i).setDeleteMe(true);
+                                        } else if (sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
+                                        {
+                                            count = 0;
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(String.format("%.2f", sellQueue.get(i).getPrice()));
+                                            //b1.addBoughtGoods(new Stock(sellQueue.get(i).getType(), sellQueue.get(i).getQuantity(), sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            //double amount = b1.getMyCash() - sellQueue.get(i).getPrice();
+                                            //b1.setMyCash(amount);
+                                            sellQueue.get(i).setQuantity(sellQueue.get(i).getQuantity() - buyQueue.get(j).getQuantity());
+                                            String[] sellData =
+                                            {
+                                                goods, buyer, seller, quant, price
+                                            };
+                                            model.addRow(sellData);
+                                            switch (sellQueue.get(i).getTraderName())
+                                            {
+                                                case "Ian":
+                                                    s0.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Tom":
+                                                    s1.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Kim":
+                                                    s2.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
+                                            }
+                                            buyQueue.get(j).setDeleteMe(true);
+                                        } else
+                                        {
+                                            count = 0;
+                                            String buyer = buyQueue.get(j).getTraderName();
+                                            String seller = sellQueue.get(i).getTraderName();
+                                            String goods = sellQueue.get(i).getType();
+                                            String quant = String.valueOf(buyQueue.get(j).getQuantity());
+                                            String price = String.valueOf(String.format("%.2f", sellQueue.get(i).getPrice()));
+                                            //b1.addBoughtGoods(new Stock(sellQueue.get(i).getType(), sellQueue.get(i).getQuantity(), sellQueue.get(i).getPrice()));
+                                            System.err.println(sellQueue.get(i) + " bought by John");
+                                            String[] sellData =
+                                            {
+                                                goods, buyer, seller, quant, price
+                                            };
+                                            //double amount = b1.getMyCash() - sellQueue.get(i).getPrice();
+                                            //b1.setMyCash(amount);
+                                            model.addRow(sellData);
+                                            switch (sellQueue.get(i).getTraderName())
+                                            {
+                                                case "Ian":
+                                                    s0.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Tom":
+                                                    s1.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "Kim":
+                                                    s2.addCash(sellQueue.get(i).getPrice());
+                                                    break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             sellQueue.get(i).setDeleteMe(true);
                                             buyQueue.get(j).setDeleteMe(true);
@@ -380,6 +491,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             sellQueue.get(i).setDeleteMe(true);
                                         } else if (sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
@@ -411,6 +524,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             buyQueue.get(j).setDeleteMe(true);
                                         } else
@@ -442,6 +557,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             sellQueue.get(i).setDeleteMe(true);
                                             buyQueue.get(j).setDeleteMe(true);
@@ -477,6 +594,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             sellQueue.get(i).setDeleteMe(true);
                                         } else if (sellQueue.get(i).getQuantity() > buyQueue.get(j).getQuantity())
@@ -508,6 +627,8 @@ public class OrderBook extends JFrame
                                                 case "Kim":
                                                     s2.addCash(sellQueue.get(i).getPrice());
                                                     break;
+                                                case "USER":
+                                                    System.out.println("user gains " + sellQueue.get(i).getPrice());
                                             }
                                             buyQueue.get(j).setDeleteMe(true);
                                         } else
