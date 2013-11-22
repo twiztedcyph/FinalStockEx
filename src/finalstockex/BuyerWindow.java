@@ -64,21 +64,30 @@ public class BuyerWindow extends JFrame
 
         String[] columns =
         {
-            "Name", "Stock", "Quantity", "Price"
+            "Name", "My Cash", "Stock", "Quantity", "Price"
         };
         model = new DefaultTableModel();
         table = new JTable(model)
         {
+            @Override
             public boolean isCellEditable(int rows, int column)
             {
                 return false;
             }
+            @Override
+            public boolean getScrollableTracksViewportWidth()
+            {
+                return getPreferredSize().width < getParent().getWidth();
+            }
         };
+        
+        table.setFillsViewportHeight(true);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         for (int i = 0; i < columns.length; i++)
         {
             model.addColumn(columns[i]);
         }
-        table.setPreferredScrollableViewportSize(new Dimension(450, 630));
+        table.setPreferredScrollableViewportSize(new Dimension(450, 375));
         table.setFillsViewportHeight(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setCellSelectionEnabled(true);

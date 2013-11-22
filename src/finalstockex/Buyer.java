@@ -10,11 +10,12 @@ import java.util.Random;
  */
 public class Buyer extends Thread
 {
-    private final String[] GOODS = {"VOD", "BARK", "GGLE", "SAMS", "SNY", "YTB" };
+    private final String[] GOODS = {"VOD", "BARK", "GGLE", "SAMS", "SNY", "YTB", "DFG", "TRT", "HJU", "GGG" };
     private String name;
     private Random rand;
     private ArrayList<String> wanted;
     private ArrayList<Stock> boughtGoods;
+    private double myCash;
     
     public Buyer(String name)
     {
@@ -26,6 +27,7 @@ public class Buyer extends Thread
         wanted.add(GOODS[randSel]);
         this.name = name;
         boughtGoods = new ArrayList<>();
+        myCash = rand.nextInt(3000) + 1000;
     }
     
     public void placeBid()
@@ -38,7 +40,7 @@ public class Buyer extends Thread
                 double price = rand.nextInt(500) + decimal;
                 int quantity = rand.nextInt(200);
                 OrderBook.buyQueue.add(new Trade("BUY", wanted.get(0), this.name, quantity, price));
-                String[] sellData = {wanted.get(i), this.name, String.valueOf(quantity), String.valueOf(price)};
+                String[] sellData = {this.name, String.valueOf(this.myCash), wanted.get(i), String.valueOf(quantity), String.valueOf(price)};
                 OrderBook.buyerWindow.addRow(sellData);
                 System.out.printf("\nBuying %s at %.2f.\n", wanted.get(0), price);
                 wanted.remove(0);
@@ -91,5 +93,15 @@ public class Buyer extends Thread
     {
         System.out.println(this.name + " bought " + s.getName());
         this.boughtGoods.add(s);
+    }
+
+    public double getMyCash()
+    {
+        return myCash;
+    }
+
+    public void setMyCash(double myCash)
+    {
+        this.myCash = myCash;
     }
 }
